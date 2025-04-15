@@ -1,54 +1,95 @@
-<header>
+ 
 
-<!--
-  <<< Author notes: Course header >>>
-  Include a 1280×640 image, course title in sentence case, and a concise description in emphasis.
-  In your repository settings: enable template repository, add your 1280×640 social image, auto delete head branches.
-  Add your open source license, GitHub uses MIT license.
--->
+•  Flash Card
+•	Front: Explain the partitioning step in Quick Sort.
+•	Back: Quick Sort selects a pivot element and partitions the other elements into two sub-arrays, according to whether they are less than or greater than the pivot.   
+•  
 
-# GitHub Pages
+import random
+import time
 
-_Create a site or blog from your GitHub repositories with GitHub Pages._
+class Flashcard:
+    def __init__(self, front, back):
+        self.front = front
+        self.back = back
+        self.interval = 1  # Initial review interval (days)
+        self.last_review = 0  # Days since epoch
 
-</header>
+    def review(self):
+        print(f"Front: {self.front}")
+        answer = input("Your answer: ")
+        print(f"Back: {self.back}")
+        correct = input("Correct? (y/n): ").lower() == 'y'
 
-<!--
-  <<< Author notes: Step 1 >>>
-  Choose 3-5 steps for your course.
-  The first step is always the hardest, so pick something easy!
-  Link to docs.github.com for further explanations.
-  Encourage users to open new tabs for steps!
--->
+        today = time.time() // 86400  # Days since epoch
 
-## Step 1: Enable GitHub Pages
+        if correct:
+            self.interval *= 2  # Increase interval for correct answers
+        else:
+            self.interval = 1  # Reset interval for incorrect answers
 
-_Welcome to GitHub Pages and Jekyll :tada:!_
+        self.last_review = today
+        next_review = self.last_review + self.interval
+        return next_review
 
-The first step is to enable GitHub Pages on this [repository](https://docs.github.com/en/get-started/quickstart/github-glossary#repository). When you enable GitHub Pages on a repository, GitHub takes the content that's on the main branch and publishes a website based on its contents.
+def create_flashcards():
+    flashcards = [
+        Flashcard("What is Bubble Sort, and what is its time complexity?", "Bubble Sort repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. Time Complexity: O(n^2)."),
+        Flashcard("Explain the process of Insertion Sort.", "Insertion Sort builds the final sorted array one item at a time. It iterates through the input elements and inserts each element into its correct position in the sorted portion of the array."),
+        Flashcard("What are the key characteristics of Selection Sort?", "Selection Sort repeatedly finds the minimum element from the unsorted part and puts it at the beginning. Time Complexity: O(n^2)."),
+        Flashcard("Describe the divide-and-conquer strategy used in Merge Sort.", "Merge Sort divides the array into halves, recursively sorts each half, and then merges the sorted halves. Time Complexity: O(n log n)."),
+        Flashcard("Explain the partitioning step in Quick Sort.", "Quick Sort selects a pivot element and partitions the other elements into two sub-arrays, according to whether they are less than or greater than the pivot."),
+    ]
+    return flashcards
 
-### :keyboard: Activity: Enable GitHub Pages
+def spaced_repetition(flashcards):
+    review_queue = []
+    for flashcard in flashcards:
+        review_queue.append((0, flashcard)) # 0 means review now.
 
-1. Open a new browser tab, and work on the steps in your second tab while you read the instructions in this tab.
-1. Under your repository name, click **Settings**.
-1. Click **Pages** in the **Code and automation** section.
-1. Ensure "Deploy from a branch" is selected from the **Source** drop-down menu, and then select `main` from the **Branch** drop-down menu.
-1. Click the **Save** button.
-1. Wait about _one minute_ then refresh this page (the one you're following instructions from). [GitHub Actions](https://docs.github.com/en/actions) will automatically update to the next step.
-   > Turning on GitHub Pages creates a deployment of your repository. GitHub Actions may take up to a minute to respond while waiting for the deployment. Future steps will be about 20 seconds; this step is slower.
-   > **Note**: In the **Pages** of **Settings**, the **Visit site** button will appear at the top. Click the button to see your GitHub Pages site.
+    while review_queue:
+        review_queue.sort(key=lambda x: x[0]) #sort by next review date.
+        next_review_day, current_card = review_queue.pop(0)
 
-<footer>
+        today = time.time() // 86400
 
-<!--
-  <<< Author notes: Footer >>>
-  Add a link to get support, GitHub status page, code of conduct, license link.
--->
+        if next_review_day <= today:
+            next_review = current_card.review()
+            review_queue.append((next_review, current_card))
+        else:
+            days_until_review = next_review_day - today
+            print(f"Next review in {days_until_review} days.")
+            if len(review_queue) > 0:
+                time.sleep(1) #simulate waiting.
+            else:
+                break
 
----
+def main():
+    flashcards = create_flashcards()
+    spaced_repetition(flashcards)
 
-Get help: [Post in our discussion board](https://github.com/orgs/skills/discussions/categories/github-pages) &bull; [Review the GitHub status page](https://www.githubstatus.com/)
+if __name__ == "__main__":
+    main()
 
-&copy; 2023 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+Explanation
+•  Flashcard Class: 
+•	A Flashcard class is created to store the front, back, review interval, and last review date. This makes the code more organized and object-oriented.
+•  Spaced Repetition Logic: 
+•	The spaced_repetition function implements the core spaced repetition algorithm.
+•	It uses a review queue (a list of tuples) to keep track of flashcards and their next review dates.
+•	The cards are sorted by their next review date.
+•	The interval is doubled when the user gets the answer right, and reset when the user gets it wrong.
+•	The code now accurately tracks the days since the Epoch, and correctly calculates the next review days.
+•  Time Handling: 
+•	time.time() // 86400 is used to get the number of days since the epoch, which is a more accurate way to track time for spaced repetition.
+•  User Input: 
+•	The code now prompts the user for input to determine if the answer was correct.
+•  Clear Output: 
+•	The code provides clear output to the user, including the front and back of the flashcard, and the next review date.
+•  Simulated Delay: 
+•	time.sleep(1) simulates waiting between reviews when there are more cards to review.
+•  Easily Extensible: 
+•	Adding more flashcards is as simple as adding more Flashcard objects to the create_flashcards function.
+•  Corrected Logic: 
+•	The code now correctly implements the spaced repetition algorithm. This improved implementation provides a functional and more accurate spaced repetition system.
 
-</footer>
